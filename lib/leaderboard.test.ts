@@ -1,0 +1,63 @@
+import { describe, it, expect } from 'vitest';
+import { aggregateLeaderboard, getDateRange } from './leaderboard';
+
+describe('aggregateLeaderboard', () => {
+  it('sums scores per user, counts games played, sorts by total descending, and surfaces a comment only when exactly one game contributed', () => {
+    const rows = [
+      { user_id: 'a', final_score: 700, display_name: 'Alice', comment_text: 'Tough one' },
+      { user_id: 'b', final_score: 900, display_name: 'Bob', comment_text: 'Easy mode' },
+      { user_id: 'a', final_score: 800, display_name: 'Alice', comment_text: 'Redemption!' },
+    ];
+
+    expect(aggregateLeaderboard(rows)).toEqual([
+      {
+        userId: 'b',
+        displayName: 'Bob',
+        totalScore: 900,
+        gamesPlayed: 1,
+        averageScore: 900,
+        comment: 'Easy mode',
+      },
+      {
+        userId: 'a',
+        displayName: 'Alice',
+        totalScore: 1500,
+        gamesPlayed: 2,
+        averageScore: 750,
+        comment: null,
+      },
+    ]);
+  });
+
+  it('returns an empty list for no rows', () => {
+    expect(aggregateLeaderboard([])).toEqual([]);
+  });
+});
+
+describe('getDateRange', () => {
+  it('returns null for all-time (meaning: no date filtering)', () => {
+    expect(getDateRange('all-time', new Date('2026-06-07T12:00:00Z'))).toBeNull();
+  });
+
+  it('returns the same start and end day for daily', () => {
+    expect(getDateRange('daily', new Date('2026-06-07T12:00:00Z'))).toEqual({
+      start: '2026-06-07',
+      end: '2026-06-07',
+    });
+  });
+
+  it('returns a Sunday-to-Saturday range for weekly', () => {
+    // 2026-06-10 is a Wednesday; its week runs Sun 2026-06-07 to Sat 2026-06-13
+    expect(getDateRange('weekly', new Date('2026-06-10T12:00:00Z'))).toEqual({
+      start: '2026-06-07',
+      end: '2026-06-13',
+    });
+  });
+
+  it('returns the full calendar month for monthly', () => {
+    expect(getDateRange('monthly', new Date('2026-06-15T12:00:00Z'))).toEqual({
+      start: '2026-06-01',
+      end: '2026-06-30',
+    });
+  });
+});
