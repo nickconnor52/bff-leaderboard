@@ -11,20 +11,20 @@ describe('aggregateLeaderboard', () => {
 
     expect(aggregateLeaderboard(rows)).toEqual([
       {
-        userId: 'b',
-        displayName: 'Bob',
-        totalScore: 900,
-        gamesPlayed: 1,
-        averageScore: 900,
-        comment: 'Easy mode',
-      },
-      {
         userId: 'a',
         displayName: 'Alice',
         totalScore: 1500,
         gamesPlayed: 2,
         averageScore: 750,
         comment: null,
+      },
+      {
+        userId: 'b',
+        displayName: 'Bob',
+        totalScore: 900,
+        gamesPlayed: 1,
+        averageScore: 900,
+        comment: 'Easy mode',
       },
     ]);
   });

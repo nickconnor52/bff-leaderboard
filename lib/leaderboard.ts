@@ -51,7 +51,7 @@ export function aggregateLeaderboard(rows: ScoreRow[]): LeaderboardEntry[] {
       averageScore: Math.round(total / count),
       comment: count === 1 ? lastComment : null,
     }))
-    .sort((a, b) => a.totalScore - b.totalScore);
+    .sort((a, b) => b.totalScore - a.totalScore);
 }
 
 function toIsoDate(date: Date): string {
