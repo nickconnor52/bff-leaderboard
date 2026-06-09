@@ -83,4 +83,21 @@ describe('POST /api/ingest', () => {
       { onConflict: 'user_id,play_date' }
     );
   });
+
+  it('returns 400 for a malformed JSON body', async () => {
+    mockSingle.mockResolvedValue({ data: { id: 'user-123' } });
+
+    const response = await POST(
+      new Request('http://localhost/api/ingest', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: 'Bearer good-token',
+        },
+        body: 'not json',
+      })
+    );
+
+    expect(response.status).toBe(400);
+  });
 });

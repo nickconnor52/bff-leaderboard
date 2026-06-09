@@ -22,8 +22,14 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 
-  const body = await request.json();
-  const text = typeof body?.text === 'string' ? body.text : '';
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+  const bodyRecord = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const text = typeof bodyRecord.text === 'string' ? bodyRecord.text : '';
 
   if (text.trim().length === 0) {
     return NextResponse.json({ error: 'Missing share text' }, { status: 400 });
