@@ -12,8 +12,11 @@ const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
 
 export default async function LeaderboardPage() {
   const supabase = await createClient();
-  const entriesByPeriod = await Promise.all(
+  const results = await Promise.allSettled(
     PERIODS.map((period) => fetchLeaderboard(supabase, period.value))
+  );
+  const entriesByPeriod = results.map((result) =>
+    result.status === 'fulfilled' ? result.value : []
   );
 
   return (
