@@ -6,13 +6,24 @@ import { Button } from '@/components/ui/button';
 export default function SetupPage() {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleGenerate() {
     setLoading(true);
-    const response = await fetch('/api/profile/token', { method: 'POST' });
-    const json = await response.json();
-    setToken(json.token ?? null);
-    setLoading(false);
+    setError(null);
+    try {
+      const response = await fetch('/api/profile/token', { method: 'POST' });
+      const json = await response.json();
+      if (!response.ok) {
+        setError(json.error ?? 'Something went wrong');
+      } else {
+        setToken(json.token ?? null);
+      }
+    } catch {
+      setError('Network error — please try again');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -25,6 +36,7 @@ export default function SetupPage() {
       <Button onClick={handleGenerate} disabled={loading}>
         {token ? 'Regenerate token' : 'Generate my token'}
       </Button>
+      {error && <p className="text-sm text-red-600">{error}</p>}
       {token && (
         <div className="rounded-lg border bg-muted p-4">
           <p className="text-sm text-muted-foreground">
