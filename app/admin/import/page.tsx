@@ -14,18 +14,22 @@ export default function ImportPage() {
     event.preventDefault();
     setStatus('saving');
 
-    const response = await fetch('/api/admin/import', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ displayName, playDate, finalScore }),
-    });
+    try {
+      const response = await fetch('/api/admin/import', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ displayName, playDate, finalScore }),
+      });
 
-    if (response.ok) {
-      setStatus('done');
-      setDisplayName('');
-      setPlayDate('');
-      setFinalScore('');
-    } else {
+      if (response.ok) {
+        setStatus('done');
+        setDisplayName('');
+        setPlayDate('');
+        setFinalScore('');
+      } else {
+        setStatus('error');
+      }
+    } catch {
       setStatus('error');
     }
   }

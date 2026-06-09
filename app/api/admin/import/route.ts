@@ -12,9 +12,18 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
   }
 
-  const { displayName, playDate, finalScore } = await request.json();
+  let displayName: unknown, playDate: unknown, finalScore: unknown;
+  try {
+    ({ displayName, playDate, finalScore } = await request.json());
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
   if (!displayName || !playDate || !finalScore) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  }
+  const score = Number(finalScore);
+  if (isNaN(score)) {
+    return NextResponse.json({ error: 'finalScore must be a number' }, { status: 400 });
   }
 
   const service = createServiceClient();
@@ -32,7 +41,7 @@ export async function POST(request: Request): Promise<Response> {
     {
       user_id: profile.id,
       play_date: playDate,
-      final_score: Number(finalScore),
+      final_score: score,
       category_scores: {},
       comment_text: null,
       raw_share_text: '[manually backfilled — original share text not available]',
