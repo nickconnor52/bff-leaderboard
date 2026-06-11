@@ -7,6 +7,7 @@ export interface ScoreRow {
   final_score: number;
   display_name: string;
   comment_text: string | null;
+  entry_method: string;
 }
 
 export interface LeaderboardEntry {
@@ -21,12 +22,17 @@ export interface LeaderboardEntry {
    * arbitrary comment out of several days' worth of banter.
    */
   comment: string | null;
+  /**
+   * True if any score contributing to this entry in the period was submitted via
+   * the manual-entry dialog (entry_method === 'manual') — drives the "Cheating" badge.
+   */
+  isManual: boolean;
 }
 
 export function aggregateLeaderboard(rows: ScoreRow[]): LeaderboardEntry[] {
   const byUser = new Map<
     string,
-    { displayName: string; total: number; count: number; lastComment: string | null }
+    { displayName: string; total: number; count: number; lastComment: string | null; isManual: boolean }
   >();
 
   for (const row of rows) {
@@ -35,21 +41,24 @@ export function aggregateLeaderboard(rows: ScoreRow[]): LeaderboardEntry[] {
       total: 0,
       count: 0,
       lastComment: null,
+      isManual: false,
     };
     existing.total += row.final_score;
     existing.count += 1;
     existing.lastComment = row.comment_text;
+    existing.isManual = existing.isManual || row.entry_method === 'manual';
     byUser.set(row.user_id, existing);
   }
 
   return Array.from(byUser.entries())
-    .map(([userId, { displayName, total, count, lastComment }]) => ({
+    .map(([userId, { displayName, total, count, lastComment, isManual }]) => ({
       userId,
       displayName,
       totalScore: total,
       gamesPlayed: count,
       averageScore: Math.round(total / count),
       comment: count === 1 ? lastComment : null,
+      isManual,
     }))
     .sort((a, b) => b.totalScore - a.totalScore);
 }
@@ -86,6 +95,7 @@ interface ScoreWithProfile {
   user_id: string;
   final_score: number;
   comment_text: string | null;
+  entry_method: string;
   profiles: { display_name: string } | { display_name: string }[] | null;
 }
 
@@ -103,7 +113,7 @@ export async function fetchLeaderboard(
 
   let query = supabase
     .from('scores')
-    .select('user_id, final_score, comment_text, profiles(display_name)');
+    .select('user_id, final_score, comment_text, entry_method, profiles(display_name)');
   if (range) {
     query = query.gte('play_date', range.start).lte('play_date', range.end);
   }
@@ -116,6 +126,7 @@ export async function fetchLeaderboard(
     final_score: row.final_score,
     display_name: displayNameFrom(row.profiles),
     comment_text: row.comment_text,
+    entry_method: row.entry_method,
   }));
 
   return aggregateLeaderboard(rows);
