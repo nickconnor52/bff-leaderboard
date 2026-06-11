@@ -47,7 +47,18 @@ export default function SetupPage() {
         </div>
       )}
       <ol className="list-decimal space-y-2 pl-5 text-sm">
-        <li>Install the BFF Leaderboard Shortcut (link coming in Task 11).</li>
+        <li>
+          Install the{' '}
+          <a
+            className="underline"
+            href="https://www.icloud.com/shortcuts/ccf508f834ac456989ecf7b38f33b35d"
+            target="_blank"
+            rel="noreferrer"
+          >
+            BFF Leaderboard Shortcut
+          </a>
+          .
+        </li>
         <li>When prompted, paste your token above into the Shortcut&apos;s settings.</li>
         <li>Tomorrow morning, after you finish maptap.gg, tap Share → BFF Leaderboard.</li>
       </ol>
