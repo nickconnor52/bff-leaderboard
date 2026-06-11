@@ -30,3 +30,9 @@ export function parseShareText(rawText: string): ParsedScore | null {
     commentText: afterFinalScore.length > 0 ? afterFinalScore : null,
   };
 }
+
+export function parseManualScore(input: string): number | null {
+  const trimmed = input.trim();
+  if (!/^\d{1,3}$/.test(trimmed)) return null;
+  return parseInt(trimmed, 10);
+}
