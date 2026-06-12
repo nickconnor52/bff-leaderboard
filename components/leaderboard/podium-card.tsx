@@ -21,24 +21,35 @@ export function PodiumCard({
   comment: string | null;
   isManual: boolean;
 }) {
+  const isHero = rank === 1;
+
   return (
     <div
       className={cn(
-        'rounded-xl border-2 p-3 text-center shadow-sm sm:p-4',
+        'h-full rounded-xl border-2 text-center shadow-sm',
+        isHero ? 'p-4 sm:p-6' : 'p-3 sm:p-4',
         PODIUM_STYLES[rank - 1]
       )}
     >
       <div className="text-xs font-semibold tracking-wide uppercase sm:text-sm">
         {MEDALS[rank - 1]} #{rank}
       </div>
-      <div className="mt-1 text-base font-bold sm:text-lg">{displayName}</div>
-      <div className="mt-1 text-xl font-extrabold sm:text-2xl">{totalScore}</div>
+      <div className={cn('mt-1 font-bold', isHero ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg')}>
+        {displayName}
+      </div>
+      <div className={cn('mt-1 font-extrabold', isHero ? 'text-4xl sm:text-5xl' : 'text-xl sm:text-2xl')}>
+        {totalScore}
+      </div>
       {isManual && (
         <div className="mt-2 inline-block rounded-full border border-badge-cheating-border bg-badge-cheating-bg px-2 py-0.5 text-[10px] font-semibold text-badge-cheating-text sm:text-xs">
           😤 Cheating
         </div>
       )}
-      {comment && <div className="mt-2 text-xs italic opacity-80">&ldquo;{comment}&rdquo;</div>}
+      {comment && (
+        <div className={cn('mt-2 italic opacity-80', isHero ? 'text-sm sm:text-base' : 'text-xs')}>
+          &ldquo;{comment}&rdquo;
+        </div>
+      )}
     </div>
   );
 }
