@@ -30,7 +30,7 @@ export default async function LeaderboardPage() {
     : null;
 
   return (
-    <main className="mx-auto max-w-2xl space-y-6 p-4 sm:max-w-4xl sm:p-6">
+    <main className="mx-auto max-w-2xl space-y-6 p-4 sm:max-w-4xl sm:p-6 lg:max-w-5xl xl:max-w-6xl">
       <header className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="space-y-1 text-center sm:text-left">
           <div className="flex items-center justify-center gap-2 sm:justify-start">
