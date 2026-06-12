@@ -46,6 +46,7 @@ export async function POST(request: Request): Promise<Response> {
       comment_text: null,
       raw_share_text: '[manually backfilled — original share text not available]',
       parse_status: 'ok',
+      entry_method: 'import',
     },
     { onConflict: 'user_id,play_date' }
   );

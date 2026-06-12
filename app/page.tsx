@@ -1,7 +1,12 @@
+import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { buttonVariants } from '@/components/ui/button';
 import { LeaderboardTable } from '@/components/leaderboard/leaderboard-table';
+import { AddScoreDialog } from '@/components/leaderboard/add-score-dialog';
 import { fetchLeaderboard, type LeaderboardPeriod } from '@/lib/leaderboard';
+import { getSubtitleTarget, fetchRandomNickname } from '@/lib/nicknames';
 import { createClient } from '@/lib/supabase/server';
+import { cn } from '@/lib/utils';
 
 const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
   { value: 'daily', label: 'Today' },
@@ -19,23 +24,90 @@ export default async function LeaderboardPage() {
     result.status === 'fulfilled' ? result.value : []
   );
 
+  const subtitleTarget = getSubtitleTarget(entriesByPeriod);
+  const subtitleName = subtitleTarget
+    ? await fetchRandomNickname(supabase, subtitleTarget.userId, subtitleTarget.displayName)
+    : null;
+
   return (
-    <main className="mx-auto max-w-2xl p-6">
-      <h1 className="mb-6 text-3xl font-bold">BFF Leaderboard</h1>
-      <Tabs defaultValue="daily">
-        <TabsList>
-          {PERIODS.map((period) => (
-            <TabsTrigger key={period.value} value={period.value}>
-              {period.label}
-            </TabsTrigger>
+    <>
+      <header className="border-b border-border/60">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6">
+          <div className="space-y-1 text-center sm:text-left">
+            <div className="flex items-center justify-center gap-2 sm:justify-start">
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">🏆 BFF Leaderboard</h1>
+              <Link
+                href="/setup"
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+                  'sm:hidden'
+                )}
+              >
+                Setup
+              </Link>
+              <Link
+                href="/login"
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+                  'sm:hidden'
+                )}
+              >
+                Sign in
+              </Link>
+            </div>
+            <p className="text-sm text-muted-foreground italic sm:text-base">
+              {subtitleName ? (
+                <>
+                  Are you smarter than a{' '}
+                  <span className="font-semibold text-primary not-italic">{subtitleName}</span>?
+                </>
+              ) : (
+                'Track your maptap.gg scores with the squad'
+              )}
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-2 sm:justify-end">
+            <Link
+              href="/setup"
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+                'hidden sm:inline-flex'
+              )}
+            >
+              Setup
+            </Link>
+            <Link
+              href="/login"
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+                'hidden sm:inline-flex'
+              )}
+            >
+              Sign in
+            </Link>
+            <AddScoreDialog />
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+        <Tabs defaultValue="daily">
+          <div className="flex justify-center">
+            <TabsList>
+              {PERIODS.map((period) => (
+                <TabsTrigger key={period.value} value={period.value}>
+                  {period.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+          {PERIODS.map((period, index) => (
+            <TabsContent key={period.value} value={period.value}>
+              <LeaderboardTable entries={entriesByPeriod[index]} />
+            </TabsContent>
           ))}
-        </TabsList>
-        {PERIODS.map((period, index) => (
-          <TabsContent key={period.value} value={period.value}>
-            <LeaderboardTable entries={entriesByPeriod[index]} />
-          </TabsContent>
-        ))}
-      </Tabs>
-    </main>
+        </Tabs>
+      </main>
+    </>
   );
 }

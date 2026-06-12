@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseShareText } from './parser';
+import { parseShareText, parseManualScore } from './parser';
 
 describe('parseShareText', () => {
   it('parses a full share with category scores and a trailing comment', () => {
@@ -30,5 +30,30 @@ describe('parseShareText', () => {
 
   it('returns null when there is a final score but no category pairs', () => {
     expect(parseShareText('Final score: 744')).toBeNull();
+  });
+});
+
+describe('parseManualScore', () => {
+  it('parses a valid 1-3 digit score', () => {
+    expect(parseManualScore('294')).toBe(294);
+    expect(parseManualScore('7')).toBe(7);
+    expect(parseManualScore('0')).toBe(0);
+  });
+
+  it('trims surrounding whitespace', () => {
+    expect(parseManualScore('  294  ')).toBe(294);
+  });
+
+  it('returns null for non-numeric input', () => {
+    expect(parseManualScore('abc')).toBeNull();
+    expect(parseManualScore('')).toBeNull();
+  });
+
+  it('returns null for values over 999', () => {
+    expect(parseManualScore('1000')).toBeNull();
+  });
+
+  it('returns null for negative numbers', () => {
+    expect(parseManualScore('-5')).toBeNull();
   });
 });

@@ -4,9 +4,9 @@ import { aggregateLeaderboard, getDateRange } from './leaderboard';
 describe('aggregateLeaderboard', () => {
   it('sums scores per user, counts games played, sorts by total descending, and surfaces a comment only when exactly one game contributed', () => {
     const rows = [
-      { user_id: 'a', final_score: 700, display_name: 'Alice', comment_text: 'Tough one' },
-      { user_id: 'b', final_score: 900, display_name: 'Bob', comment_text: 'Easy mode' },
-      { user_id: 'a', final_score: 800, display_name: 'Alice', comment_text: 'Redemption!' },
+      { user_id: 'a', final_score: 700, display_name: 'Alice', comment_text: 'Tough one', entry_method: 'shortcut' },
+      { user_id: 'b', final_score: 900, display_name: 'Bob', comment_text: 'Easy mode', entry_method: 'shortcut' },
+      { user_id: 'a', final_score: 800, display_name: 'Alice', comment_text: 'Redemption!', entry_method: 'shortcut' },
     ];
 
     expect(aggregateLeaderboard(rows)).toEqual([
@@ -17,6 +17,7 @@ describe('aggregateLeaderboard', () => {
         gamesPlayed: 2,
         averageScore: 750,
         comment: null,
+        isManual: false,
       },
       {
         userId: 'b',
@@ -25,12 +26,39 @@ describe('aggregateLeaderboard', () => {
         gamesPlayed: 1,
         averageScore: 900,
         comment: 'Easy mode',
+        isManual: false,
       },
     ]);
   });
 
   it('returns an empty list for no rows', () => {
     expect(aggregateLeaderboard([])).toEqual([]);
+  });
+
+  it('marks an entry as manual when its only row was manually entered', () => {
+    const rows = [
+      { user_id: 'c', final_score: 261, display_name: 'Craig', comment_text: null, entry_method: 'manual' },
+    ];
+
+    expect(aggregateLeaderboard(rows)[0].isManual).toBe(true);
+  });
+
+  it('marks an entry as manual if any row in the period was manually entered', () => {
+    const rows = [
+      { user_id: 'c', final_score: 261, display_name: 'Craig', comment_text: null, entry_method: 'shortcut' },
+      { user_id: 'c', final_score: 100, display_name: 'Craig', comment_text: null, entry_method: 'manual' },
+    ];
+
+    expect(aggregateLeaderboard(rows)[0].isManual).toBe(true);
+  });
+
+  it('does not mark an entry as manual when no rows were manually entered', () => {
+    const rows = [
+      { user_id: 'c', final_score: 261, display_name: 'Craig', comment_text: null, entry_method: 'shortcut' },
+      { user_id: 'c', final_score: 100, display_name: 'Craig', comment_text: null, entry_method: 'import' },
+    ];
+
+    expect(aggregateLeaderboard(rows)[0].isManual).toBe(false);
   });
 });
 
