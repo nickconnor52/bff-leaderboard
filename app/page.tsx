@@ -3,7 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { buttonVariants } from '@/components/ui/button';
 import { LeaderboardTable } from '@/components/leaderboard/leaderboard-table';
 import { AddScoreDialog } from '@/components/leaderboard/add-score-dialog';
+import { HallOfFame } from '@/components/leaderboard/hall-of-fame';
 import { fetchLeaderboard, type LeaderboardPeriod } from '@/lib/leaderboard';
+import { fetchHistoricalWins } from '@/lib/historical-wins';
 import { getSubtitleTarget, fetchRandomNickname } from '@/lib/nicknames';
 import { createClient } from '@/lib/supabase/server';
 import { cn } from '@/lib/utils';
@@ -28,6 +30,8 @@ export default async function LeaderboardPage() {
   const entriesByPeriod = results.map((result) =>
     result.status === 'fulfilled' ? result.value : []
   );
+
+  const historicalWins = await fetchHistoricalWins(supabase);
 
   const subtitleTarget = getSubtitleTarget(entriesByPeriod);
   const subtitleName = subtitleTarget
@@ -82,7 +86,8 @@ export default async function LeaderboardPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+      <main className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+        <HallOfFame entries={historicalWins} />
         <Tabs defaultValue="daily">
           <div className="flex justify-center">
             <TabsList>
