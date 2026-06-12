@@ -6,6 +6,7 @@ import { AddScoreDialog } from '@/components/leaderboard/add-score-dialog';
 import { fetchLeaderboard, type LeaderboardPeriod } from '@/lib/leaderboard';
 import { getSubtitleTarget, fetchRandomNickname } from '@/lib/nicknames';
 import { createClient } from '@/lib/supabase/server';
+import { cn } from '@/lib/utils';
 
 const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
   { value: 'daily', label: 'Today' },
@@ -29,32 +30,45 @@ export default async function LeaderboardPage() {
     : null;
 
   return (
-    <main className="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-      <header className="space-y-1 pt-2 text-center">
-        <div className="flex items-center justify-center gap-2">
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">🏆 BFF Leaderboard</h1>
+    <main className="mx-auto max-w-2xl space-y-6 p-4 sm:max-w-4xl sm:p-6">
+      <header className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="space-y-1 text-center sm:text-left">
+          <div className="flex items-center justify-center gap-2 sm:justify-start">
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">🏆 BFF Leaderboard</h1>
+            <Link
+              href="/setup"
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+                'sm:hidden'
+              )}
+            >
+              Setup
+            </Link>
+          </div>
+          <p className="text-sm text-muted-foreground italic sm:text-base">
+            {subtitleName ? (
+              <>
+                Are you smarter than a{' '}
+                <span className="font-semibold text-primary not-italic">{subtitleName}</span>?
+              </>
+            ) : (
+              'Track your maptap.gg scores with the squad'
+            )}
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-2 sm:justify-end">
           <Link
             href="/setup"
-            className={buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' })}
+            className={cn(
+              buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+              'hidden sm:inline-flex'
+            )}
           >
             Setup
           </Link>
+          <AddScoreDialog />
         </div>
-        <p className="text-sm text-muted-foreground italic sm:text-base">
-          {subtitleName ? (
-            <>
-              Are you smarter than a{' '}
-              <span className="font-semibold text-primary not-italic">{subtitleName}</span>?
-            </>
-          ) : (
-            'Track your maptap.gg scores with the squad'
-          )}
-        </p>
       </header>
-
-      <div className="flex justify-center">
-        <AddScoreDialog />
-      </div>
 
       <Tabs defaultValue="daily">
         <div className="flex justify-center">
