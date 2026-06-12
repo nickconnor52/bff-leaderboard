@@ -10,9 +10,15 @@ export async function createClient() {
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: (cookiesToSet, _headers) => {
-          for (const { name, value, options } of cookiesToSet) {
-            cookieStore.set(name, value, options);
+        setAll: (cookiesToSet) => {
+          try {
+            for (const { name, value, options } of cookiesToSet) {
+              cookieStore.set(name, value, options);
+            }
+          } catch {
+            // `setAll` runs during a Server Component render, where cookies are
+            // read-only. The session refresh is handled in `proxy.ts` instead, so
+            // it's safe to ignore the write here.
           }
         },
       },

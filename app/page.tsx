@@ -17,6 +17,11 @@ const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
 
 export default async function LeaderboardPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const results = await Promise.allSettled(
     PERIODS.map((period) => fetchLeaderboard(supabase, period.value))
   );
@@ -29,32 +34,16 @@ export default async function LeaderboardPage() {
     ? await fetchRandomNickname(supabase, subtitleTarget.userId, subtitleTarget.displayName)
     : null;
 
+  const pillClass = cn(
+    buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' })
+  );
+
   return (
     <>
       <header className="border-b border-border/60">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6">
           <div className="space-y-1 text-center sm:text-left">
-            <div className="flex items-center justify-center gap-2 sm:justify-start">
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">🏆 BFF Leaderboard</h1>
-              <Link
-                href="/setup"
-                className={cn(
-                  buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
-                  'sm:hidden'
-                )}
-              >
-                Setup
-              </Link>
-              <Link
-                href="/login"
-                className={cn(
-                  buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
-                  'sm:hidden'
-                )}
-              >
-                Sign in
-              </Link>
-            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">🏆 BFF Leaderboard</h1>
             <p className="text-sm text-muted-foreground italic sm:text-base">
               {subtitleName ? (
                 <>
@@ -66,26 +55,29 @@ export default async function LeaderboardPage() {
               )}
             </p>
           </div>
-          <div className="flex items-center justify-center gap-2 sm:justify-end">
-            <Link
-              href="/setup"
-              className={cn(
-                buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
-                'hidden sm:inline-flex'
-              )}
-            >
-              Setup
-            </Link>
-            <Link
-              href="/login"
-              className={cn(
-                buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
-                'hidden sm:inline-flex'
-              )}
-            >
-              Sign in
-            </Link>
-            <AddScoreDialog />
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
+            {user ? (
+              <>
+                {user.email && (
+                  <span className="hidden text-sm text-muted-foreground sm:inline">
+                    {user.email}
+                  </span>
+                )}
+                <Link href="/setup" className={pillClass}>
+                  Setup
+                </Link>
+                <form action="/auth/signout" method="post">
+                  <button type="submit" className={pillClass}>
+                    Sign out
+                  </button>
+                </form>
+                <AddScoreDialog />
+              </>
+            ) : (
+              <Link href="/login" className={pillClass}>
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       </header>
