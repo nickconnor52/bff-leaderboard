@@ -44,6 +44,15 @@ export default async function LeaderboardPage() {
             >
               Setup
             </Link>
+            <Link
+              href="/login"
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+                'sm:hidden'
+              )}
+            >
+              Sign in
+            </Link>
           </div>
           <p className="text-sm text-muted-foreground italic sm:text-base">
             {subtitleName ? (
@@ -65,6 +74,15 @@ export default async function LeaderboardPage() {
             )}
           >
             Setup
+          </Link>
+          <Link
+            href="/login"
+            className={cn(
+              buttonVariants({ variant: 'outline', size: 'sm', className: 'rounded-full' }),
+              'hidden sm:inline-flex'
+            )}
+          >
+            Sign in
           </Link>
           <AddScoreDialog />
         </div>
