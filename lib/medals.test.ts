@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computePodium, tallyMedals } from './medals';
+import { computePodium, tallyMedals, formatPodiumText } from './medals';
 import { etToday } from './dates';
 
 describe('computePodium', () => {
@@ -95,5 +95,29 @@ describe('etToday', () => {
     expect(etToday(new Date('2026-06-13T02:00:00Z'))).toBe('2026-06-12');
     // 2026-06-13T12:00:00Z is 2026-06-13 (08:00) in America/New_York
     expect(etToday(new Date('2026-06-13T12:00:00Z'))).toBe('2026-06-13');
+  });
+});
+
+describe('formatPodiumText', () => {
+  const names = new Map([
+    ['a', 'Conner'],
+    ['b', 'Jordan'],
+    ['c', 'Zach'],
+  ]);
+
+  it('formats a full podium', () => {
+    expect(formatPodiumText({ gold: ['a'], silver: ['b'], bronze: ['c'] }, names)).toBe(
+      '🥇 Conner  🥈 Jordan  🥉 Zach'
+    );
+  });
+
+  it('joins tied names with &', () => {
+    expect(formatPodiumText({ gold: ['a', 'b'], silver: [], bronze: ['c'] }, names)).toBe(
+      '🥇 Conner & Jordan  🥉 Zach'
+    );
+  });
+
+  it('returns an empty string for an empty podium', () => {
+    expect(formatPodiumText({ gold: [], silver: [], bronze: [] }, names)).toBe('');
   });
 });

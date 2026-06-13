@@ -79,3 +79,16 @@ export function tallyMedals(
   }
   return tally;
 }
+
+/**
+ * Renders a podium as notification text, e.g. "🥇 Conner  🥈 Jordan  🥉 Zach".
+ * Empty tiers are omitted; tied names within a tier are joined with " & ".
+ */
+export function formatPodiumText(podium: Podium, nameByUserId: Map<string, string>): string {
+  const name = (id: string) => nameByUserId.get(id) ?? 'Unknown';
+  const tiers: string[] = [];
+  if (podium.gold.length) tiers.push(`🥇 ${podium.gold.map(name).join(' & ')}`);
+  if (podium.silver.length) tiers.push(`🥈 ${podium.silver.map(name).join(' & ')}`);
+  if (podium.bronze.length) tiers.push(`🥉 ${podium.bronze.map(name).join(' & ')}`);
+  return tiers.join('  ');
+}
