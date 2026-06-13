@@ -3,6 +3,7 @@ import { createServiceClient } from '@/lib/supabase/service';
 import { hashApiToken } from '@/lib/tokens';
 import { parseShareText } from '@/lib/parser';
 import { etToday } from '@/lib/dates';
+import { maybeFinalizeToday } from '@/lib/finalize';
 
 export async function POST(request: Request): Promise<Response> {
   const authHeader = request.headers.get('authorization');
@@ -54,6 +55,12 @@ export async function POST(request: Request): Promise<Response> {
 
   if (error) {
     return NextResponse.json({ error: 'Failed to save score' }, { status: 500 });
+  }
+
+  try {
+    await maybeFinalizeToday(supabase);
+  } catch (err) {
+    console.error('finalize after ingest failed', err);
   }
 
   return NextResponse.json({ status: parsed ? 'ok' : 'needs_review' });

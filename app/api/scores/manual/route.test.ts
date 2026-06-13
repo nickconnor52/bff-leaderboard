@@ -11,6 +11,10 @@ vi.mock('@/lib/supabase/server', () => ({
   }),
 }));
 
+vi.mock('@/lib/finalize', () => ({
+  maybeFinalizeToday: vi.fn().mockResolvedValue(false),
+}));
+
 function makeRequest(body: unknown): Request {
   return new Request('http://localhost/api/scores/manual', {
     method: 'POST',

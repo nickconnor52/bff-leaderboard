@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { parseShareText, parseManualScore } from '@/lib/parser';
 import { etToday } from '@/lib/dates';
+import { createServiceClient } from '@/lib/supabase/service';
+import { maybeFinalizeToday } from '@/lib/finalize';
 
 export async function POST(request: Request): Promise<Response> {
   const supabase = await createClient();
@@ -70,6 +72,12 @@ export async function POST(request: Request): Promise<Response> {
 
   if (error) {
     return NextResponse.json({ error: 'Failed to save score' }, { status: 500 });
+  }
+
+  try {
+    await maybeFinalizeToday(createServiceClient());
+  } catch (err) {
+    console.error('finalize after manual entry failed', err);
   }
 
   return NextResponse.json({ status: 'ok' });
