@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { computePodium, tallyMedals } from './medals';
+import { etToday } from './hall-of-fame';
 
 describe('computePodium', () => {
   it('awards nothing when fewer than 2 players competed', () => {
@@ -88,5 +89,14 @@ describe('tallyMedals', () => {
 
   it('returns an empty map when no days are closed', () => {
     expect(tallyMedals(scores, '2026-06-10').size).toBe(0);
+  });
+});
+
+describe('etToday', () => {
+  it('formats a date as an ISO YYYY-MM-DD string in Eastern Time', () => {
+    // 2026-06-13T02:00:00Z is still 2026-06-12 (22:00) in America/New_York
+    expect(etToday(new Date('2026-06-13T02:00:00Z'))).toBe('2026-06-12');
+    // 2026-06-13T12:00:00Z is 2026-06-13 (08:00) in America/New_York
+    expect(etToday(new Date('2026-06-13T12:00:00Z'))).toBe('2026-06-13');
   });
 });
