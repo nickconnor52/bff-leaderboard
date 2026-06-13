@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { tallyMedals, type MedalCounts } from './medals';
-import { etToday } from './dates';
 
 export interface HallOfFameRow {
   playerName: string;
@@ -42,9 +41,10 @@ export async function fetchHallOfFame(supabase: SupabaseClient): Promise<HallOfF
   let derived = new Map<string, MedalCounts>();
   const profileNames = new Map<string, string>();
   try {
-    const [scoresRes, profilesRes] = await Promise.all([
+    const [scoresRes, profilesRes, finalizedRes] = await Promise.all([
       supabase.from('scores').select('user_id, final_score, play_date'),
       supabase.from('profiles').select('id, display_name'),
+      supabase.from('daily_results').select('play_date'),
     ]);
     const scores = (scoresRes.data ?? []).map((r) => ({
       userId: r.user_id as string,
@@ -54,7 +54,8 @@ export async function fetchHallOfFame(supabase: SupabaseClient): Promise<HallOfF
     for (const p of profilesRes.data ?? []) {
       profileNames.set(p.id as string, p.display_name as string);
     }
-    derived = tallyMedals(scores, etToday());
+    const finalizedDates = new Set((finalizedRes.data ?? []).map((d) => d.play_date as string));
+    derived = tallyMedals(scores, finalizedDates);
   } catch {
     // Leave derived empty -> Hall of Fame falls back to seed-only.
   }

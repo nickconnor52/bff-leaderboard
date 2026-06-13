@@ -63,32 +63,29 @@ describe('computePodium', () => {
 
 describe('tallyMedals', () => {
   const scores = [
-    // day 1: a gold, b silver, c bronze
     { userId: 'a', finalScore: 100, playDate: '2026-06-10' },
     { userId: 'b', finalScore: 80, playDate: '2026-06-10' },
     { userId: 'c', finalScore: 50, playDate: '2026-06-10' },
-    // day 2: b gold, a silver (2 players)
     { userId: 'b', finalScore: 90, playDate: '2026-06-11' },
     { userId: 'a', finalScore: 70, playDate: '2026-06-11' },
   ];
 
-  it('accumulates medals per user across days', () => {
-    const tally = tallyMedals(scores, '2026-06-13');
+  it('counts only finalized days', () => {
+    const tally = tallyMedals(scores, new Set(['2026-06-10', '2026-06-11']));
     expect(tally.get('a')).toEqual({ gold: 1, silver: 1, bronze: 0 });
     expect(tally.get('b')).toEqual({ gold: 1, silver: 1, bronze: 0 });
     expect(tally.get('c')).toEqual({ gold: 0, silver: 0, bronze: 1 });
   });
 
-  it('excludes today and future days (only closed days count)', () => {
-    // todayEt = day 2, so only day 1 counts
-    const tally = tallyMedals(scores, '2026-06-11');
+  it('ignores unfinalized days', () => {
+    const tally = tallyMedals(scores, new Set(['2026-06-10']));
     expect(tally.get('a')).toEqual({ gold: 1, silver: 0, bronze: 0 });
     expect(tally.get('b')).toEqual({ gold: 0, silver: 1, bronze: 0 });
     expect(tally.get('c')).toEqual({ gold: 0, silver: 0, bronze: 1 });
   });
 
-  it('returns an empty map when no days are closed', () => {
-    expect(tallyMedals(scores, '2026-06-10').size).toBe(0);
+  it('returns an empty map when no days are finalized', () => {
+    expect(tallyMedals(scores, new Set()).size).toBe(0);
   });
 });
 

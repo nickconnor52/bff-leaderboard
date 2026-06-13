@@ -49,16 +49,16 @@ export function computePodium(dayScores: DayScore[]): Podium {
 }
 
 /**
- * Tallies medals per user across every CLOSED day. A day is closed when its
- * `playDate` (ISO `YYYY-MM-DD`) is strictly before `todayEt`. Pure: no clock access.
+ * Tallies medals per user across every FINALIZED day. A day counts when its
+ * `playDate` (ISO `YYYY-MM-DD`) is present in `finalizedDates`. Pure.
  */
 export function tallyMedals(
   scores: { userId: string; finalScore: number; playDate: string }[],
-  todayEt: string
+  finalizedDates: Set<string>
 ): Map<string, MedalCounts> {
   const byDay = new Map<string, DayScore[]>();
   for (const s of scores) {
-    if (s.playDate >= todayEt) continue; // skip today + future
+    if (!finalizedDates.has(s.playDate)) continue;
     const day = byDay.get(s.playDate) ?? [];
     day.push({ userId: s.userId, finalScore: s.finalScore });
     byDay.set(s.playDate, day);
