@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { computePodium, tallyMedals } from './medals';
-import { etToday } from './hall-of-fame';
+import { etToday } from './dates';
 
 describe('computePodium', () => {
   it('awards nothing when fewer than 2 players competed', () => {
