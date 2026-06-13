@@ -47,3 +47,35 @@ export function computePodium(dayScores: DayScore[]): Podium {
   }
   return podium;
 }
+
+/**
+ * Tallies medals per user across every CLOSED day. A day is closed when its
+ * `playDate` (ISO `YYYY-MM-DD`) is strictly before `todayEt`. Pure: no clock access.
+ */
+export function tallyMedals(
+  scores: { userId: string; finalScore: number; playDate: string }[],
+  todayEt: string
+): Map<string, MedalCounts> {
+  const byDay = new Map<string, DayScore[]>();
+  for (const s of scores) {
+    if (s.playDate >= todayEt) continue; // skip today + future
+    const day = byDay.get(s.playDate) ?? [];
+    day.push({ userId: s.userId, finalScore: s.finalScore });
+    byDay.set(s.playDate, day);
+  }
+
+  const tally = new Map<string, MedalCounts>();
+  const bump = (userId: string, medal: keyof MedalCounts) => {
+    const counts = tally.get(userId) ?? { gold: 0, silver: 0, bronze: 0 };
+    counts[medal] += 1;
+    tally.set(userId, counts);
+  };
+
+  for (const day of byDay.values()) {
+    const podium = computePodium(day);
+    podium.gold.forEach((u) => bump(u, 'gold'));
+    podium.silver.forEach((u) => bump(u, 'silver'));
+    podium.bronze.forEach((u) => bump(u, 'bronze'));
+  }
+  return tally;
+}
