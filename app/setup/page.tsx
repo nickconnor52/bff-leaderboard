@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { EnableNotificationsButton } from '@/components/EnableNotificationsButton';
 
 export default function SetupPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -64,6 +65,13 @@ export default function SetupPage() {
           <li>When prompted, paste your token above into the Shortcut&apos;s settings.</li>
           <li>Tomorrow morning, after you finish maptap.gg, tap Share → BFF Leaderboard.</li>
         </ol>
+        <div className="border-t pt-4">
+          <h2 className="text-lg font-semibold">Notifications</h2>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Get a push when each day&apos;s results are final.
+          </p>
+          <EnableNotificationsButton />
+        </div>
       </div>
     </main>
   );
