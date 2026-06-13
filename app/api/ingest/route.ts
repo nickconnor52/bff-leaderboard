@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { hashApiToken } from '@/lib/tokens';
 import { parseShareText } from '@/lib/parser';
+import { etToday } from '@/lib/dates';
 
 export async function POST(request: Request): Promise<Response> {
   const authHeader = request.headers.get('authorization');
@@ -36,7 +37,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const parsed = parseShareText(text);
-  const playDate = new Date().toISOString().slice(0, 10);
+  const playDate = etToday();
 
   const { error } = await supabase.from('scores').upsert(
     {
