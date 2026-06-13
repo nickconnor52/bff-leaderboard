@@ -24,6 +24,16 @@ export default async function LeaderboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  let isAdmin = false;
+  if (user) {
+    const { data: adminProfile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+    isAdmin = adminProfile?.is_admin === true;
+  }
+
   const results = await Promise.allSettled(
     PERIODS.map((period) => fetchLeaderboard(supabase, period.value))
   );
@@ -66,6 +76,11 @@ export default async function LeaderboardPage() {
                   <span className="hidden text-sm text-muted-foreground sm:inline">
                     {user.email}
                   </span>
+                )}
+                {isAdmin && (
+                  <Link href="/admin" className={pillClass}>
+                    Admin
+                  </Link>
                 )}
                 <Link href="/setup" className={pillClass}>
                   Setup
