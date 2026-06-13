@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { getAdminUser } from '@/lib/admin';
 
 export async function POST(request: Request): Promise<Response> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+  const admin = await getAdminUser(supabase);
+  if (!admin) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   let displayName: unknown, playDate: unknown, finalScore: unknown;
