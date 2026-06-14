@@ -6,6 +6,8 @@ import { AddScoreDialog } from '@/components/leaderboard/add-score-dialog';
 import { HallOfFame } from '@/components/leaderboard/hall-of-fame';
 import { fetchLeaderboard, type LeaderboardPeriod } from '@/lib/leaderboard';
 import { fetchHallOfFame } from '@/lib/hall-of-fame';
+import { fetchStandings } from '@/lib/ranking/persistence';
+import type { Standing } from '@/lib/ranking/types';
 import { getSubtitleTarget, fetchRandomNickname } from '@/lib/nicknames';
 import { createClient } from '@/lib/supabase/server';
 import { cn } from '@/lib/utils';
@@ -42,6 +44,9 @@ export default async function LeaderboardPage() {
   );
 
   const hallOfFame = await fetchHallOfFame(supabase);
+
+  const standingsList = await fetchStandings(supabase);
+  const standings: Map<string, Standing> = new Map(standingsList.map((s) => [s.userId, s]));
 
   const subtitleTarget = getSubtitleTarget(entriesByPeriod);
   const subtitleName = subtitleTarget
@@ -102,7 +107,7 @@ export default async function LeaderboardPage() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
-        <HallOfFame entries={hallOfFame} />
+        <HallOfFame entries={hallOfFame} standings={standings} />
         <Tabs defaultValue="daily">
           <div className="flex justify-center">
             <TabsList>
@@ -115,7 +120,11 @@ export default async function LeaderboardPage() {
           </div>
           {PERIODS.map((period, index) => (
             <TabsContent key={period.value} value={period.value}>
-              <LeaderboardTable entries={entriesByPeriod[index]} />
+              <LeaderboardTable
+                entries={entriesByPeriod[index]}
+                standings={standings}
+                isDaily={period.value === 'daily'}
+              />
             </TabsContent>
           ))}
         </Tabs>
