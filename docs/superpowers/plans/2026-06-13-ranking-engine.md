@@ -1070,9 +1070,10 @@ source ~/.nvm/nvm.sh && nvm use 20.20.2 && \
 mkdir -p scripts/ranking/_compiled && \
 npx --no-install tsc lib/ranking/types.ts lib/ranking/config.ts lib/ranking/scoring.ts \
   lib/ranking/ladder.ts lib/ranking/weekly.ts lib/ranking/replay.ts \
-  --outDir scripts/ranking/_compiled --module es2022 --target es2022
+  --outDir scripts/ranking/_compiled --module es2022 --target es2022 ; \
+sed -i '' -E "s/from '(\.\/[a-zA-Z]+)'/from '\1.js'/g" scripts/ranking/_compiled/*.js
 ```
-Expected: `scripts/ranking/_compiled/replay.js` exists (ambient `@types` errors are noise; emit succeeds).
+Expected: `scripts/ranking/_compiled/replay.js` exists (ambient `@types` errors are noise; emit succeeds). The `sed` pass appends `.js` to the emitted relative imports, which Node's ESM loader requires — without it the script fails with `ERR_MODULE_NOT_FOUND`.
 
 - [ ] **Step 2: Create `scripts/ranking/calibrate.mjs`**
 
