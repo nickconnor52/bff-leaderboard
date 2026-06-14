@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { computePodium, formatPodiumText, type DayScore } from './medals';
 import { notifyPodium } from './push';
 import { etToday } from './dates';
+import { recomputeRanking } from './ranking/persistence';
 
 interface ScoreWithProfile {
   user_id: string;
@@ -59,6 +60,13 @@ export async function finalizeDay(
 
   const podium = computePodium(dayScores);
   await notifyPodium(supabase, formatPodiumText(podium, nameByUserId));
+
+  // Recompute the ranking ladder from history (best-effort; never fail finalization).
+  try {
+    await recomputeRanking(supabase);
+  } catch {
+    // ignore — standings will catch up on the next finalize or manual recompute
+  }
   return true;
 }
 
