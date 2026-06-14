@@ -67,27 +67,44 @@ function toIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+/**
+ * The America/New_York calendar date of `date`, returned as a Date at UTC midnight so
+ * that UTC-based date arithmetic (getUTCDate/setUTCDate) stays stable. Scores carry an
+ * ET `play_date`, so all leaderboard ranges must be anchored to the ET day — otherwise,
+ * once ET crosses into the next UTC day (evenings), "today" would query tomorrow's
+ * (empty) UTC date.
+ */
+function etCivilDate(date: Date): Date {
+  const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' })
+    .format(date)
+    .split('-')
+    .map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
 export function getDateRange(
   period: LeaderboardPeriod,
   referenceDate: Date
 ): { start: string; end: string } | null {
   if (period === 'all-time') return null;
 
+  const ref = etCivilDate(referenceDate);
+
   if (period === 'daily') {
-    const day = toIsoDate(referenceDate);
+    const day = toIsoDate(ref);
     return { start: day, end: day };
   }
 
   if (period === 'weekly') {
-    const start = new Date(referenceDate);
-    start.setDate(start.getDate() - start.getDay());
+    const start = new Date(ref);
+    start.setUTCDate(start.getUTCDate() - start.getUTCDay());
     const end = new Date(start);
-    end.setDate(end.getDate() + 6);
+    end.setUTCDate(end.getUTCDate() + 6);
     return { start: toIsoDate(start), end: toIsoDate(end) };
   }
 
-  const start = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1);
-  const end = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 0);
+  const start = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), 1));
+  const end = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + 1, 0));
   return { start: toIsoDate(start), end: toIsoDate(end) };
 }
 

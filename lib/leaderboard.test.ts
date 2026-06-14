@@ -88,4 +88,26 @@ describe('getDateRange', () => {
       end: '2026-06-30',
     });
   });
+
+  it('uses the Eastern calendar day, not UTC (evening ET is still "today")', () => {
+    // 2026-06-14T02:00:00Z is 2026-06-13 10pm ET — scores carry ET play_date, so
+    // "today" must be 2026-06-13, not the UTC date 2026-06-14.
+    expect(getDateRange('daily', new Date('2026-06-14T02:00:00Z'))).toEqual({
+      start: '2026-06-13',
+      end: '2026-06-13',
+    });
+  });
+
+  it('keeps weekly/monthly on the Eastern day across the UTC midnight boundary', () => {
+    // Same instant (2026-06-13 10pm ET). Month must stay June; the week must be the
+    // one containing Sat 2026-06-13, i.e. Sun 06-07 .. Sat 06-13.
+    expect(getDateRange('monthly', new Date('2026-06-14T02:00:00Z'))).toEqual({
+      start: '2026-06-01',
+      end: '2026-06-30',
+    });
+    expect(getDateRange('weekly', new Date('2026-06-14T02:00:00Z'))).toEqual({
+      start: '2026-06-07',
+      end: '2026-06-13',
+    });
+  });
 });
