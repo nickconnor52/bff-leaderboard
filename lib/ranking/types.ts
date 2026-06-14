@@ -22,6 +22,7 @@ export interface LadderState {
   displayedRung: number; // 0..17 (the division actually achieved)
   promoPending: boolean;
   shieldActive: boolean;
+  shieldCount?: number; // consecutive shielded demotion-events absorbed; absent/0 = not shielded
 }
 
 export interface RatingEvent {

@@ -12,6 +12,7 @@ export function initialState(config: RankingConfig): LadderState {
     displayedRung: rungForRating(config.startRating, config),
     promoPending: false,
     shieldActive: false,
+    shieldCount: 0,
   };
 }
 
@@ -37,12 +38,14 @@ export function applyEvent(
   config: RankingConfig,
   canPromote = true // false for weekly events: they can push you to a cap but never advance
 ): LadderState {
-  const rating = Math.min(ladderTop(config), Math.max(config.ladderFloor, state.rating + delta));
+  let rating = Math.min(ladderTop(config), Math.max(config.ladderFloor, state.rating + delta));
   const natural = rungForRating(rating, config);
   let { displayedRung, promoPending, shieldActive } = state;
+  let shieldCount = state.shieldCount ?? 0;
 
   if (natural > displayedRung) {
     shieldActive = false;
+    shieldCount = 0;
     if (promoPending) {
       if (canPromote && promoQualifies(place, fieldSize, config)) {
         displayedRung += 1;
@@ -54,18 +57,25 @@ export function applyEvent(
     }
   } else if (natural < displayedRung) {
     promoPending = false;
-    if (shieldActive) {
-      displayedRung -= 1;
-      shieldActive = rungForRating(rating, config) < displayedRung;
-    } else {
+    const used = shieldCount;
+    if (used < config.shieldDays) {
+      // Protect: hold rating at the division floor while shielded.
       shieldActive = true;
+      shieldCount = used + 1;
+      rating = config.ladderFloor + displayedRung * config.bandWidth;
+    } else {
+      // Shield exhausted: demote, and the rating floats down as today.
+      displayedRung -= 1;
+      shieldActive = false;
+      shieldCount = 0;
     }
   } else {
     promoPending = false;
     shieldActive = false;
+    shieldCount = 0;
   }
 
-  return { rating, displayedRung, promoPending, shieldActive };
+  return { rating, displayedRung, promoPending, shieldActive, shieldCount };
 }
 
 export function deriveStanding(

@@ -69,13 +69,51 @@ describe('applyEvent — demotion shield', () => {
     expect(next.shieldActive).toBe(true);
   });
   it('demotes on a second drop while shielded', () => {
-    const shielded: LadderState = { rating: 185, displayedRung: 2, promoPending: false, shieldActive: true };
-    const next = applyEvent(shielded, -20, 6, 7, C); // rating 165 still natural 1 < 2
+    const shielded: LadderState = {
+      rating: 200,
+      displayedRung: 2,
+      promoPending: false,
+      shieldActive: true,
+      shieldCount: 1,
+    };
+    const next = applyEvent(shielded, -20, 6, 7, C); // rating 180 still natural 1 < 2
     expect(next.displayedRung).toBe(1);
   });
   it('clears the shield on a recovering gain', () => {
     const shielded: LadderState = { rating: 185, displayedRung: 2, promoPending: false, shieldActive: true };
     const next = applyEvent(shielded, 30, 1, 7, C); // rating 215 -> natural 2 == displayed
     expect(next.shieldActive).toBe(false);
+  });
+  it('a gain never demotes a shielded player; clears the shield instead', () => {
+    // Engage the shield via a loss from a settled in-band state.
+    const start: LadderState = { rating: 205, displayedRung: 2, promoPending: false, shieldActive: false };
+    const shielded = applyEvent(start, -20, 6, 7, C); // rating 185 -> natural 1 < displayed 2, shield engages
+    expect(shielded.shieldActive).toBe(true);
+    expect(shielded.displayedRung).toBe(2);
+    expect(shielded.rating).toBe(200); // clamped to division floor while shielded
+
+    // A small qualifying gain should clear the shield without demoting.
+    const next = applyEvent(shielded, 5, 1, 7, C); // rating 205 -> natural 2 == displayed
+    expect(next.displayedRung).toBe(2);
+    expect(next.shieldActive).toBe(false);
+  });
+  it('wires shieldDays: protects for N consecutive demotion-events before demoting', () => {
+    const config = { ...C, shieldDays: 2 };
+    const start: LadderState = { rating: 205, displayedRung: 2, promoPending: false, shieldActive: false };
+
+    const afterFirstLoss = applyEvent(start, -20, 6, 7, config); // rating -> 185, natural 1 < 2
+    expect(afterFirstLoss.displayedRung).toBe(2);
+    expect(afterFirstLoss.shieldActive).toBe(true);
+    expect(afterFirstLoss.shieldCount).toBe(1);
+
+    const afterSecondLoss = applyEvent(afterFirstLoss, -20, 6, 7, config); // still shielded (used 1 < 2)
+    expect(afterSecondLoss.displayedRung).toBe(2);
+    expect(afterSecondLoss.shieldActive).toBe(true);
+    expect(afterSecondLoss.shieldCount).toBe(2);
+
+    const afterThirdLoss = applyEvent(afterSecondLoss, -20, 6, 7, config); // used 2 >= 2 -> demote
+    expect(afterThirdLoss.displayedRung).toBe(1);
+    expect(afterThirdLoss.shieldActive).toBe(false);
+    expect(afterThirdLoss.shieldCount).toBe(0);
   });
 });
