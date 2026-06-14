@@ -28,5 +28,10 @@ export async function GET(request: Request): Promise<Response> {
     if (await finalizeDay(supabase, day, { force: true })) finalized.push(day);
   }
 
+  // Same-day safety net: finalize today if everyone is in (no force, so a partial day is
+  // left alone). With the cron running a few times a day, a missed live auto-finalize on
+  // the last submission self-heals within hours instead of waiting for tomorrow's force pass.
+  if (await finalizeDay(supabase, today, { force: false })) finalized.push(today);
+
   return NextResponse.json({ finalized });
 }
