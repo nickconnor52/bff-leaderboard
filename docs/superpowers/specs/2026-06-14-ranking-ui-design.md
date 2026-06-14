@@ -15,7 +15,10 @@ graph's data — `rating_events` — is already stored; see "Future" below.)
    Platinum and Diamond glow at higher divisions; Diamond III is a gradient + glow. Shows the
    rank label (`"Diamond I"`) and optionally LP.
 2. **Tier palette (accent hex):** Iron `#6f7fa3` (dark cobalt-gray), Bronze `#d9a36b`,
-   Silver `#cdd6df`, Gold `#ecc658`, Platinum `#5fe0d4`, Diamond `#7cc2ff`.
+   Silver `#cdd6df`, Gold `#ecc658`, Platinum `#5fe0d4`, Diamond `#7cc2ff`, **Emerald `#1fc983`**
+   (medium jewel-green, kept distinct from Platinum's cyan — added 2026-06-14 as the top tier).
+   Emerald III is the fanciest badge: gradient `linear-gradient(180deg,#22d98c,#0e9a63)`, dark
+   text `#04140e`, border `#5fefb6`, glow `0 0 16px rgba(40,220,150,.78)`.
 3. **Badge everywhere; match-label only on Today.** `RankBadge` renders on the podium cards,
    all leaderboard rows (every tab), and Hall of Fame. `MatchLabel` (Promotion/Demotion)
    renders only on the **daily ("Today")** tab next to the score, because a promo/demo match

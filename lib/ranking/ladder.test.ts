@@ -3,13 +3,13 @@ import { rungForRating, deriveStanding, applyEvent } from './ladder';
 import { DEFAULT_CONFIG } from './config';
 import type { LadderState } from './types';
 
-const C = DEFAULT_CONFIG; // bandWidth 100, floor 0 -> rung = floor(rating/100), 0..17
+const C = DEFAULT_CONFIG; // bandWidth 100, floor 0 -> rung = floor(rating/100), 0..20
 
 describe('rungForRating', () => {
-  it('maps rating to a clamped 0..17 rung', () => {
+  it('maps rating to a clamped 0..20 rung (Emerald III is the top)', () => {
     expect(rungForRating(0, C)).toBe(0);
     expect(rungForRating(150, C)).toBe(1);
-    expect(rungForRating(99999, C)).toBe(17);
+    expect(rungForRating(99999, C)).toBe(20);
     expect(rungForRating(-50, C)).toBe(0);
   });
 });

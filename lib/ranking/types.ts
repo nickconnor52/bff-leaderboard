@@ -54,5 +54,5 @@ export interface WeeklyChampion {
   totalScore: number;
 }
 
-export const TIERS = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'] as const;
-export const RUNG_COUNT = 18; // 6 tiers x 3 divisions
+export const TIERS = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Emerald'] as const;
+export const RUNG_COUNT = 21; // 7 tiers x 3 divisions (Emerald is the top tier)
