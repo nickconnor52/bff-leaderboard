@@ -10,6 +10,8 @@ import { fetchStandings } from '@/lib/ranking/persistence';
 import type { Standing } from '@/lib/ranking/types';
 import { getSubtitleTarget, fetchRandomNickname } from '@/lib/nicknames';
 import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
+import { maybeFinalizeToday } from '@/lib/finalize';
 import { cn } from '@/lib/utils';
 
 const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
@@ -34,6 +36,18 @@ export default async function LeaderboardPage() {
       .eq('id', user.id)
       .single();
     isAdmin = adminProfile?.is_admin === true;
+  }
+
+  // Backup finalize-on-read: if the live finalize on the final score POST missed, finalize
+  // today here (best-effort, service role) when everyone's in — this also fires the missed
+  // podium push and recomputes the ladder. Idempotent: the daily_results PK serializes
+  // concurrent renders, so only one attempt sends the push / recomputes. Never fail the render.
+  if (user) {
+    try {
+      await maybeFinalizeToday(createServiceClient());
+    } catch {
+      // ignore — page render must never break on this best-effort backup
+    }
   }
 
   const results = await Promise.allSettled(
