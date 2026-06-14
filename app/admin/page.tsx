@@ -28,7 +28,9 @@ export default async function AdminScoresPage({
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Scores</h1>
-      <AdminScoreTable playDate={playDate} rows={rows} />
+      {/* key on the date so the table remounts and re-seeds its draft state when the
+          selected date changes (otherwise the score inputs keep the prior date's values). */}
+      <AdminScoreTable key={playDate} playDate={playDate} rows={rows} />
     </div>
   );
 }
