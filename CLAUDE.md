@@ -51,6 +51,10 @@ leaderboards.
 See `docs/superpowers/specs/` for the full v1 design rationale and `docs/superpowers/plans/`
 for the implementation plan this was built from.
 
+- **Ranking system rules** (ELO ladder + weekly championship) live in
+  `docs/superpowers/specs/2026-06-13-ranking-system-design.md` — the canonical, living rules
+  doc. The *rules* are there; the *current tuned numbers* live in the `ranking_config` table.
+
 ## Vision / future ideas (not yet built)
 
 - **Achievements** (e.g. "first podium," win streaks). The `category_scores` JSON and daily
