@@ -19,8 +19,8 @@ const TIERS = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
 
 // Candidate config — edit these and re-run until endpoints land.
 const config = {
-  curveScale: 27, kFactor: 10, dScale: 200, dailyWeight: 1, weeklyWeight: 3,
-  eventMultiplier: 1, bandWidth: 100, ladderFloor: 0, startRating: 720,
+  curveScale: 33, kFactor: 10, dScale: 200, dailyWeight: 1, weeklyWeight: 3,
+  eventMultiplier: 1, bandWidth: 100, ladderFloor: 0, startRating: 560,
   promoPlace: 3, shieldDays: 1,
 };
 
