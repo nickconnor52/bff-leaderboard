@@ -46,3 +46,6 @@ next-env.d.ts
 # one-off backfill artifacts (compiled output + extracted/dumped data; never the source scripts)
 scripts/backfill/_compiled/
 scripts/backfill/data/
+
+# one-off ranking calibration artifacts (compiled output; never the source script)
+scripts/ranking/_compiled/
