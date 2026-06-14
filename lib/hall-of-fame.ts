@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { tallyMedals } from './medals';
 
 export interface HallOfFameRow {
+  userId: string;
   playerName: string;
   gold: number;
   silver: number;
@@ -39,6 +40,7 @@ export async function fetchHallOfFame(supabase: SupabaseClient): Promise<HallOfF
     const rows: HallOfFameRow[] = [];
     for (const [userId, counts] of derived) {
       rows.push({
+        userId,
         playerName: profileNames.get(userId) ?? 'Unknown',
         gold: counts.gold,
         silver: counts.silver,
