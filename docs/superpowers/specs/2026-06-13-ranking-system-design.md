@@ -100,8 +100,9 @@ band_width) × 100`, displayed 0–100.
   submitted day, a **top-3** finish (`promo_place = 3`) releases the cap: advance one division,
   Δ flows normally again. Miss it → stay capped, retry next day. A *losing* day while pending
   drops R back down within the division (pending clears). Ceiling: Diamond III LP 100.
-  On a tiny field (fewer than `promo_place` submitted), the promo is satisfied by finishing
-  no worse than last (i.e. `place ≤ max(promo_place, n−1)`), so a thin day can't block forever.
+  The promo requires `place ≤ max(1, min(promo_place, n−1))` — i.e. top-3 in a normal field,
+  but it relaxes on tiny fields (top-2 with 3 players, win with 2) so a thin day can't block
+  forever, while never letting a near-last finish promote.
 - **Demotion shield (down).** When a loss would drop R below the current division floor for the
   first time, R is **held at the floor (LP 0)** and `shield_active = true` for `shield_days`
   (=1). Any subsequent gain clears the shield and lifts R off the floor; another qualifying
