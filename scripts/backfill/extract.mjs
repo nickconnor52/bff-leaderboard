@@ -132,7 +132,7 @@ for (const r of final) perPlayer[r.name] = (perPlayer[r.name] ?? 0) + 1;
 console.log('=== BACKFILL EXTRACTION SUMMARY ===');
 console.log('messages scanned:', rows.length, '| shares:', shares, '| bares:', bares, '| reactions skipped:', reactions);
 console.log('era start:', eraStart, '| dropped pre-era bares:', droppedPreEra, '| dropped <' + MIN_BARE + ':', droppedLowBare);
-console.log('unknown senders:', skippedUnknownSender, '| no card date:', noCardDate);
+console.log('unknown senders:', skippedUnknownSender, '| no card date:', noCardDate, '| non-score msgs:', nonScore);
 console.log('final rows:', final.length, '| needs_review:', final.filter((r) => r.needsReview).length, '| conflicts:', conflicts);
 console.log('date range:', dates[0], '→', dates[dates.length - 1]);
 console.log('per player:', perPlayer);
