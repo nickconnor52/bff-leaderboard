@@ -122,6 +122,26 @@ admin browser ──fetch──► /api/admin/* ──getAdminUser (server clien
 Medals are derived from `scores`, so any score add/edit/delete here flows into the Hall of
 Fame on next render with no recompute — including for already-finalized past days.
 
+> **⚠️ Linking invariant (link-wins gotcha).** The Hall of Fame merge in
+> `lib/hall-of-fame.ts` attaches live-derived medals to a `historical_wins` row **only when
+> that row's `user_id` is set**; any derived medals for an *unlinked* player spill into a
+> second loop as a brand-new row keyed by profile name. So a player who has both an
+> **unlinked** seed row **and** earns a finalized-day medal gets **two rows** (their pre-app
+> tally split from their live medals), and React also collides on the duplicate
+> `playerName` key. This stayed invisible until the first finalized day (2026-06-13)
+> produced derived medals; it surfaced as duplicate Conner/Jordan/Christian entries with
+> Jordan's silver not adding to his 9. **Fix applied:** every `historical_wins` row is now
+> linked. **Invariant to maintain:** whenever a new `historical_wins` row is added, link its
+> `user_id` immediately (Users → profile → Link wins), or it will duplicate the moment that
+> player medals. This whole class of bug disappears once the historical backfill lands and
+> wins are derived purely from `scores` (then `historical_wins` is dropped — see
+> `historical-data-import-plan`).
+>
+> **✅ Resolved 2026-06-13.** The backfill landed (281 chat-parsed scores imported into
+> `scores`, all days finalized). The Hall of Fame now derives purely from `scores`;
+> `historical_wins` and the `link-wins` route are gone (migration `0007`), and
+> `lib/hall-of-fame.ts` no longer merges a seed — so this invariant no longer applies.
+
 ## Error handling
 
 - Unauthenticated / non-admin: pages `notFound()`; APIs return 403.

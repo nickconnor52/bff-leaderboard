@@ -17,21 +17,16 @@ export default async function AdminUserDetailPage({
     .single();
   if (!profile) notFound();
 
-  const [{ data: nicknames }, { data: wins }] = await Promise.all([
-    service.from('nicknames').select('id, nickname').eq('user_id', id).order('nickname'),
-    service.from('historical_wins').select('id, player_name, wins, user_id').order('player_name'),
-  ]);
+  const { data: nicknames } = await service
+    .from('nicknames')
+    .select('id, nickname')
+    .eq('user_id', id)
+    .order('nickname');
 
   return (
     <AdminProfileEditor
       profile={{ id: profile.id as string, displayName: profile.display_name as string }}
       nicknames={(nicknames ?? []).map((n) => ({ id: n.id as string, nickname: n.nickname as string }))}
-      historicalWins={(wins ?? []).map((w) => ({
-        id: w.id as string,
-        playerName: w.player_name as string,
-        wins: w.wins as number,
-        userId: (w.user_id as string | null) ?? null,
-      }))}
     />
   );
 }
