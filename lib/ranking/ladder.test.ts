@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rungForRating, deriveStanding, applyEvent, initialState } from './ladder';
+import { rungForRating, deriveStanding, applyEvent } from './ladder';
 import { DEFAULT_CONFIG } from './config';
 import type { LadderState } from './types';
 
