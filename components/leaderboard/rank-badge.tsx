@@ -14,7 +14,18 @@ function badgeStyle(tier: number, division: number): CSSProperties {
   const fill = fillLevel(division);
   const base: CSSProperties = { borderStyle: 'solid', borderWidth: 1 };
 
-  // Diamond III: gradient + strong glow (the fanciest rung).
+  // Emerald III: the fanciest rung on the ladder — vivid green gradient + strong glow.
+  if (tier === 6 && fill === 3) {
+    return {
+      ...base,
+      background: 'linear-gradient(180deg,#22d98c,#0e9a63)',
+      color: '#04140e',
+      borderColor: '#5fefb6',
+      boxShadow: '0 0 16px rgba(40,220,150,.78)',
+    };
+  }
+
+  // Diamond III: gradient + strong glow.
   if (tier === 5 && fill === 3) {
     return {
       ...base,

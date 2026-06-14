@@ -27,8 +27,10 @@ Built **engine-first** as two sub-projects:
 2. **Calibration = replay**: everyone starts equal at the maptap era start (2026-04-28); the
    engine replays all 47 finalized days (and completed weeks) to "now," then we tune knobs so
    today **Conner = Diamond I (base of Diamond)** and **Jason = Iron I**.
-3. **Ladder = 6 tiers × 3 divisions = 18 rungs**, divisions ordered **I → II → III within a
-   tier (I lowest)**. Full ladder: Iron I (bottom) → … → Diamond III (top).
+3. **Ladder = 7 tiers × 3 divisions = 21 rungs**, divisions ordered **I → II → III within a
+   tier (I lowest)**. Full ladder: Iron I (bottom) → … → Diamond III → Emerald I … Emerald III
+   (top). *(Emerald was added 2026-06-14 as the new top tier — `RUNG_COUNT` 18→21; everything
+   below Diamond is unchanged, so it's purely aspirational.)*
 4. **Promotion gate**: reaching the top of a division puts you in a rank-up state; your next
    submitted day must finish **top-3** to advance.
 5. **Demotion shield**: the first loss that would drop you a division is absorbed; you get
@@ -90,7 +92,7 @@ resolved only by a daily top-3 finish. (This keeps "rank-up match" a daily conce
 
 ## Ladder state machine
 
-R is divided into fixed `band_width`-sized **bands**: 18 rungs = 6 tiers × 3 divisions.
+R is divided into fixed `band_width`-sized **bands**: 21 rungs = 7 tiers × 3 divisions.
 `rung = floor((R − ladder_floor) / band_width)`, clamped to `[0, 17]`; `tier = floor(rung/3)`;
 `division = (rung mod 3) + 1` (1=I lowest, 3=III highest). `LP = ((R − rung_floor) /
 band_width) × 100`, displayed 0–100.
@@ -99,7 +101,7 @@ band_width) × 100`, displayed 0–100.
   **held at the cap (LP 100)** and `promo_pending = true` — no crossing yet. On the next
   submitted day, a **top-3** finish (`promo_place = 3`) releases the cap: advance one division,
   Δ flows normally again. Miss it → stay capped, retry next day. A *losing* day while pending
-  drops R back down within the division (pending clears). Ceiling: Diamond III LP 100.
+  drops R back down within the division (pending clears). Ceiling: Emerald III LP 100.
   The promo requires `place ≤ max(1, min(promo_place, n−1))` — i.e. top-3 in a normal field,
   but it relaxes on tiny fields (top-2 with 3 players, win with 2) so a thin day can't block
   forever, while never letting a near-last finish promote.
@@ -154,8 +156,8 @@ final ladder (player → tier/division/LP, R, champion counts). All visuals are 
 - Base curve: full field, short fields, ties; `< 2` players → no change.
 - Hybrid surprise term: underdog win amplifies gain; favorite tanking amplifies loss.
 - Weekly aggregation + Champion selection.
-- Band/division/LP mapping across all 18 rungs and boundaries.
-- Promo state machine: pending → promote on top-3, fail/retry, cancel on a loss, Diamond III
+- Band/division/LP mapping across all 21 rungs and boundaries.
+- Promo state machine: pending → promote on top-3, fail/retry, cancel on a loss, Emerald III
   ceiling.
 - Demotion shield: engage at floor, clear on a gain, demote on a second loss, Iron I floor.
 - Full-replay determinism + idempotent recompute (running twice = identical standings).
