@@ -42,3 +42,7 @@ next-env.d.ts
 
 # superpowers brainstorming companion
 .superpowers/
+
+# one-off backfill artifacts (compiled output + extracted/dumped data; never the source scripts)
+scripts/backfill/_compiled/
+scripts/backfill/data/

@@ -9,31 +9,19 @@ interface Nickname {
   id: string;
   nickname: string;
 }
-interface HistoricalWin {
-  id: string;
-  playerName: string;
-  wins: number;
-  userId: string | null;
-}
 
 export function AdminProfileEditor({
   profile,
   nicknames,
-  historicalWins,
 }: {
   profile: { id: string; displayName: string };
   nicknames: Nickname[];
-  historicalWins: HistoricalWin[];
 }) {
   const router = useRouter();
   const [name, setName] = useState(profile.displayName);
   const [newNickname, setNewNickname] = useState('');
-  const [linkId, setLinkId] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  const linkedHere = historicalWins.filter((w) => w.userId === profile.id);
-  const unlinked = historicalWins.filter((w) => w.userId === null);
 
   async function call(input: RequestInfo, init: RequestInit, ok: string) {
     setBusy(true);
@@ -127,49 +115,6 @@ export function AdminProfileEditor({
             Add
           </Button>
         </div>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="font-semibold">Historical wins</h2>
-        {linkedHere.length > 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Linked: {linkedHere.map((w) => `${w.playerName} (${w.wins})`).join(', ')}
-          </p>
-        ) : (
-          <p className="text-sm text-muted-foreground">No historical wins linked yet.</p>
-        )}
-        {unlinked.length > 0 && (
-          <div className="flex gap-2">
-            <select
-              value={linkId}
-              onChange={(e) => setLinkId(e.target.value)}
-              className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
-            >
-              <option value="">Link an unlinked record…</option>
-              {unlinked.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.playerName} ({w.wins})
-                </option>
-              ))}
-            </select>
-            <Button
-              disabled={busy || !linkId}
-              onClick={() =>
-                call(
-                  '/api/admin/link-wins',
-                  {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ historicalWinId: linkId, userId: profile.id }),
-                  },
-                  'Wins linked.'
-                ).then(() => setLinkId(''))
-              }
-            >
-              Link
-            </Button>
-          </div>
-        )}
       </section>
 
       {message && <p className="text-sm text-muted-foreground">{message}</p>}
